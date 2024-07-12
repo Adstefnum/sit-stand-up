@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 
 const SitStandTimer: React.FC = () => {
@@ -10,8 +10,12 @@ const SitStandTimer: React.FC = () => {
   const [standTime, setStandTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+    const audioContext = useRef<AudioContext | null>(null);
+
 
   useEffect(() => {
+        audioContext.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+
     loadPreferences();
   }, []);
 
@@ -78,8 +82,39 @@ const SitStandTimer: React.FC = () => {
     setIsPaused(false);
   };
 
-  const playNotification = async () => {
-    await invoke('play_notification');
+  const showNotification = async (title: string, body: string) => {
+    try {
+      await invoke('show_notification', { title, body });
+    } catch (error) {
+      console.error('Failed to show notification:', error);
+    }
+  };
+
+const playNotification = async () => {
+    if (!audioContext.current) return;
+
+    // Create an oscillator
+    const oscillator = audioContext.current.createOscillator();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(440, audioContext.current.currentTime); // 440 Hz - A4 note
+
+    // Create a gain node
+    const gainNode = audioContext.current.createGain();
+    gainNode.gain.setValueAtTime(0, audioContext.current.currentTime);
+    gainNode.gain.linearRampToValueAtTime(1, audioContext.current.currentTime + 0.01);
+    gainNode.gain.linearRampToValueAtTime(0, audioContext.current.currentTime + 1);
+
+    // Connect the nodes
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.current.destination);
+
+    // Start and stop the oscillator
+    oscillator.start(audioContext.current.currentTime);
+    oscillator.stop(audioContext.current.currentTime + 1);
+
+    const title = status === 'Sitting' ? 'Time to Stand!' : 'Time to Sit!';
+    const body = `Your ${status.toLowerCase()} session has ended.`;
+    await showNotification(title, body);
   };
 
   const formatTime = (seconds: number): string => {

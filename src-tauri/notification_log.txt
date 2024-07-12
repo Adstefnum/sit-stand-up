@@ -1,0 +1,6 @@
+Notification played at: 2024-07-12 10:07:17.161917300 +03:00
+Notification played at: 2024-07-12 10:08:17.347390900 +03:00
+Notification played at: 2024-07-12 10:09:17.481951400 +03:00
+Notification played at: 2024-07-12 10:10:17.632631800 +03:00
+Notification shown at: 2024-07-12 10:21:55.579016500 +03:00 - Title: Time to Stand!, Body: Your sitting session has ended.
+Notification shown at: 2024-07-12 10:23:22.160175 +03:00 - Title: Time to Sit!, Body: Your standing session has ended.

@@ -1,9 +1,13 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::Manager;
 use serde::{Serialize, Deserialize};
 use std::fs;
+use chrono::Local;
+use std::fs::OpenOptions;
+use std::io::Write;
+use tauri::api::notification::Notification;
+
 
 #[derive(Serialize, Deserialize)]
 struct Preferences {
@@ -33,14 +37,64 @@ fn play_notification(app_handle: tauri::AppHandle) {
     println!("Playing notification sound");
 }
 
+
+
+#[tauri::command]
+fn log_notification() -> Result<(), String> {
+    let now = Local::now();
+    let log_entry = format!("Notification played at: {}\n", now);
+    
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("notification_log.txt")
+        .map_err(|e| e.to_string())?;
+
+    file.write_all(log_entry.as_bytes())
+        .map_err(|e| e.to_string())?;
+
+    println!("Notification logged: {}", log_entry);
+    Ok(())
+}
+
+#[tauri::command]
+async fn show_notification(window: tauri::Window, title: String, body: String) -> Result<(), String> {
+    let now = Local::now();
+    let log_entry = format!("Notification shown at: {} - Title: {}, Body: {}\n", now, title, body);
+    
+    // Log to file
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("notification_log.txt")
+        .map_err(|e| e.to_string())?;
+
+    file.write_all(log_entry.as_bytes())
+        .map_err(|e| e.to_string())?;
+
+    println!("Notification logged: {}", log_entry);
+
+    // Show system notification
+Notification::new(&window.app_handle().config().tauri.bundle.identifier)
+        .title(title)
+        .body(body)
+        .show()
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
             // Any additional setup can go here
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![load_preferences, save_preferences, play_notification])
+        .invoke_handler(tauri::generate_handler![
+            load_preferences,
+            save_preferences,
+            show_notification
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-
