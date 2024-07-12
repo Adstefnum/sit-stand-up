@@ -7,7 +7,7 @@
     "distDir": "../out"
   },
   "package": {
-    "productName": "sit-stand-up",
+    "productName": "Sit Stand Up Timer",
     "version": "0.1.0"
   },
   "tauri": {
@@ -18,7 +18,7 @@
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
+      "category": "Productivity",
       "copyright": "",
       "deb": {
         "depends": []
@@ -31,7 +31,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.adstefnum.sitstandup.dev",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -60,7 +60,7 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "title": "sit-stand-up",
+        "title": "Sit Stand Up Timer",
         "width": 800
       }
     ]

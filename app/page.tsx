@@ -42,7 +42,7 @@ const SitStandTimer: React.FC = () => {
   }, [isRunning, isPaused, timeLeft, status, sitTime, standTime]);
 
   const loadPreferences = async () => {
-    const prefs = await invoke('load_preferences');
+    const prefs: any = await invoke('load_preferences');
     setSitTime(prefs.sit_time);
     setStandTime(prefs.stand_time);
   };
